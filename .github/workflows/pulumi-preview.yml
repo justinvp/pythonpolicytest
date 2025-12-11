@@ -16,25 +16,38 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Export Python version
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+
+      - name: Export HOME for cache paths
         shell: bash
-        run: echo "PYTHON_VERSION=$(python3 --version | cut -d' ' -f2)" >> $GITHUB_ENV
+        run: echo "HOME=$HOME" >> $GITHUB_ENV
 
       - name: Export ImageVersion
         shell: bash
         run: echo "IMAGE_VERSION=$ImageVersion" >> "$GITHUB_ENV"
 
+      - name: Export Python version
+        shell: bash
+        run: echo "PYTHON_VERSION=$(python3 --version | cut -d' ' -f2)" >> $GITHUB_ENV
+
+      - name: Export Node version
+        shell: bash
+        run: echo "NODE_VERSION=$(node --version | sed 's/^v//')" >> $GITHUB_ENV
+
       - name: Cache Pulumi Plugins
         uses: actions/cache@v4
         with:
           path: ${{ env.HOME }}/.pulumi/policies
-          key: pulumi-plugins-${{ runner.os }}-${{ runner.arch }}-${{ env.IMAGE_VERSION }}-py${{ env.PYTHON_VERSION }}
+          key: pulumi-plugins-${{ runner.os }}-${{ runner.arch }}-${{ env.IMAGE_VERSION }}-py${{ env.PYTHON_VERSION }}-node${{ env.NODE_VERSION }}
 
       - name: Cache Pulumi Policies
         uses: actions/cache@v4
         with:
           path: ${{ env.HOME }}/.pulumi/policies
-          key: pulumi-policies-${{ runner.os }}-${{ runner.arch }}-${{ env.IMAGE_VERSION }}-py${{ env.PYTHON_VERSION }}
+          key: pulumi-policies-${{ runner.os }}-${{ runner.arch }}-${{ env.IMAGE_VERSION }}-py${{ env.PYTHON_VERSION }}-node${{ env.NODE_VERSION }}
 
       - name: Pulumi Preview
         uses: pulumi/actions@v6
